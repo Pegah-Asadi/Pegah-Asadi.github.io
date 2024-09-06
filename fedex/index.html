@@ -1,118 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogAction } from '@/components/ui/alert';
-import confetti from 'canvas-confetti';
-
-const letters = ['F', 'E', 'D', 'E', 'X'];
-
-const getRandomPosition = () => ({
-  left: `${Math.random() * 80}%`,
-  top: `${Math.random() * 80}%`,
-});
-
-const Letter = ({ letter, index, position, onDragStart, onDragEnd }) => {
-  const styles = {
-    F: "font-bold text-4xl bg-gradient-to-r from-purple-500 to-pink-500 text-transparent bg-clip-text",
-    E: index === 1 
-      ? "italic text-4xl text-gray-300 [text-shadow:_0_1px_0_rgb(0_0_0_/_40%)]" 
-      : "text-4xl text-blue-500 animate-pulse",
-    D: "text-4xl text-yellow-500 font-rounded drop-shadow-lg",
-    X: "text-5xl text-green-500 font-mono [background-image:_linear-gradient(45deg,_#000000,_#000000_3px,_#ffffff_3px,_#ffffff_6px)]"
-  };
-
-  return (
-    <div
-      className={`absolute cursor-move ${styles[letter]}`}
-      style={{ ...position }}
-      draggable
-      onDragStart={(e) => onDragStart(e, index)}
-      onDragEnd={onDragEnd}
-    >
-      {letter}
-    </div>
-  );
-};
-
-const FedExPuzzleGame = () => {
-  const [letterPositions, setLetterPositions] = useState([]);
-  const [draggedIndex, setDraggedIndex] = useState(null);
-  const [isComplete, setIsComplete] = useState(false);
-
-  useEffect(() => {
-    setLetterPositions(letters.map(() => getRandomPosition()));
-  }, []);
-
-  const handleDragStart = (e, index) => {
-    setDraggedIndex(index);
-    e.dataTransfer.setData('text/plain', index);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const dropX = e.clientX;
-    const dropY = e.clientY;
-    
-    setLetterPositions((prev) => {
-      const newPositions = [...prev];
-      newPositions[draggedIndex] = {
-        left: `${(dropX / window.innerWidth) * 100}%`,
-        top: `${(dropY / window.innerHeight) * 100}%`,
-      };
-      return newPositions;
-    });
-
-    checkCompletion();
-  };
-
-  const checkCompletion = () => {
-    const orderedPositions = letterPositions
-      .map((pos, index) => ({ ...pos, letter: letters[index] }))
-      .sort((a, b) => parseFloat(a.left) - parseFloat(b.left));
-
-    const word = orderedPositions.map((item) => item.letter).join('');
-    
-    if (word === 'FEDEX') {
-      setIsComplete(true);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    }
-  };
-
-  return (
-    <div 
-      className="relative w-full h-screen bg-gray-100" 
-      onDragOver={handleDragOver} 
-      onDrop={handleDrop}
-    >
-      {letters.map((letter, index) => (
-        <Letter
-          key={index}
-          letter={letter}
-          index={index}
-          position={letterPositions[index]}
-          onDragStart={handleDragStart}
-          onDragEnd={checkCompletion}
-        />
-      ))}
-      <AlertDialog open={isComplete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Congratulations!</AlertDialogTitle>
-            <AlertDialogDescription>
-              You did it! You've successfully arranged the letters to spell "FedEx"!
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogAction onClick={() => setIsComplete(false)}>Close</AlertDialogAction>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-};
-
-export default FedExPuzzleGame;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FedEx Puzzle Game</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel" src="game.js"></script>
+</body>
+</html>
