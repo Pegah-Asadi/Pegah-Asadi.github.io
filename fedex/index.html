@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FedEx Puzzle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .puzzle {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 10px;
+        }
+        .puzzle div {
+            width: 100px;
+            height: 100px;
+            background-color: #fedex;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            background-color: lightgray;
+        }
+        .empty {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="puzzle" id="puzzle">
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>4</div>
+        <div>5</div>
+        <div>6</div>
+        <div>7</div>
+        <div>8</div>
+        <div class="empty"></div>
+    </div>
+
+    <script>
+        const puzzle = document.getElementById('puzzle');
+        const pieces = Array.from(puzzle.children);
+
+        pieces.forEach(piece => {
+            piece.addEventListener('click', () => {
+                const emptyPiece = document.querySelector('.empty');
+                const clickedPieceIndex = pieces.indexOf(piece);
+                const emptyPieceIndex = pieces.indexOf(emptyPiece);
+
+                const distance = Math.abs(clickedPieceIndex - emptyPieceIndex);
+
+                // Only swap if the clicked piece is adjacent to the empty space
+                if (distance === 1 || distance === 3) {
+                    puzzle.insertBefore(piece, emptyPiece);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
