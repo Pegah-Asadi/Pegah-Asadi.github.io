@@ -4,22 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FedEx Puzzle Game</title>
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
         }
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
+        h1 {
+            margin: 20px;
+            color: #333;
+        }
+        .letters {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .letter {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            font-size: 50px;
+            background-color: #ffc107;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .letter.dragging {
+            opacity: 0.5;
+        }
+        #confetti {
+            display: none;
+            font-size: 40px;
+            color: green;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
-    <script type="text/babel" src="game.js"></script>
+    <h1>Arrange the letters to form "FedEx"</h1>
+    <div class="letters">
+        <div class="letter" draggable="true">F</div>
+        <div class="letter" draggable="true">D</div>
+        <div class="letter" draggable="true">E</div>
+        <div class="letter" draggable="true">E</div>
+        <div class="letter" draggable="true">X</div>
+    </div>
+    <div id="confetti">🎉 You did it! 🎉</div>
+
+    <script>
+        let draggedElement;
+        const lettersContainer = document.querySelector('.letters');
+        const confettiMessage = document.getElementById('confetti');
+
+        lettersContainer.addEventListener('dragstart', (e) => {
+            draggedElement = e.target;
+            draggedElement.classList.add('dragging');
+        });
+
+        lettersContainer.addEventListener('dragend', () => {
+            draggedElement.classList.remove('dragging');
+        });
+
+        lettersContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const afterElement = getDragAfterElement(lettersContainer, e.clientX);
+            if (afterElement == null) {
+                lettersContainer.appendChild(draggedElement);
+            } else {
+                lettersContainer.insertBefore(draggedElement, afterElement);
+            }
+        });
+
+        lettersContainer.addEventListener('drop', () => {
+            checkIfCompleted();
+        });
+
+        function getDragAfterElement(container, x) {
+            const draggableElements = [...container.querySelectorAll('.letter:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = x - box.left - box.width / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function checkIfCompleted() {
+            const currentOrder = [...lettersContainer.children].map(letter => letter.textContent).join('');
+            if (currentOrder === 'FDEEX') {
+                confettiMessage.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>
